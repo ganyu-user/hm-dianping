@@ -7,6 +7,7 @@ import com.hmdp.entity.ShopType;
 import com.hmdp.mapper.ShopTypeMapper;
 import com.hmdp.service.IShopTypeService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.utils.RedisCacheUtil;
 import com.hmdp.utils.RedisConstants;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -52,10 +53,11 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> i
         // 6、判断数据库的数据是否为空
         if (CollUtil.isNotEmpty(dbShopTypeList)) {
             // 7、非空，写入redis，返回数据
+            Long ShopTypeListTtl = RedisCacheUtil.getRandomTtl(RedisConstants.SHOPTYPE_LIST_TTL, RedisConstants.SHOPTYPE_LIST_RANDOM_OFFSET);
             stringRedisTemplate.opsForValue().set(
                     key,
                     JSONUtil.toJsonStr(dbShopTypeList),
-                    RedisConstants.SHOPTYPE_LIST_TTL,
+                    ShopTypeListTtl,
                     TimeUnit.MINUTES);
             return dbShopTypeList;
         }
