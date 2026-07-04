@@ -1,6 +1,7 @@
 package com.hmdp.controller;
 
 
+import cn.hutool.core.collection.CollUtil;
 import com.hmdp.dto.Result;
 import com.hmdp.entity.ShopType;
 import com.hmdp.service.IShopTypeService;
@@ -25,10 +26,16 @@ public class ShopTypeController {
     @Resource
     private IShopTypeService typeService;
 
+    /**
+     * 查询店铺类型
+     * @return
+     */
     @GetMapping("list")
     public Result queryTypeList() {
-        List<ShopType> typeList = typeService
-                .query().orderByAsc("sort").list();
+        List<ShopType> typeList = typeService.queryTypeList();
+        if(CollUtil.isEmpty(typeList)){
+            return Result.fail("店铺类型不存在！");
+        }
         return Result.ok(typeList);
     }
 }
