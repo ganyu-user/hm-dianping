@@ -8,6 +8,7 @@ import com.hmdp.entity.UserInfo;
 import com.hmdp.service.IUserInfoService;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.UserHolder;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpSession;
 @Slf4j
 @RestController
 @RequestMapping("/user")
+@Tag(name="用户接口-UserController")
 public class UserController {
 
     @Resource

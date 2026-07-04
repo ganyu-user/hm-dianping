@@ -22,8 +22,20 @@ spring:
         time-between-eviction-runs: 10s
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+
 mybatis-plus:
   type-aliases-package: com.hmdp.entity # 别名扫描包
+
 logging:
   level:
     com.hmdp: debug
+
+# Knife4j 配置
+knife4j:
+  # 开发环境开启，生产环境改为 false 关闭文档，防止接口泄露
+  enable: true
+  # 开启生产环境屏蔽（线上强制关闭，即使enable=true也不展示）
+  production: false
+  openapi:
+    # 开启接口调试增强
+    enable: true

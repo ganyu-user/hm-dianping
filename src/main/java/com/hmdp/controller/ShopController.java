@@ -7,6 +7,8 @@ import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
 import com.hmdp.service.IShopService;
 import com.hmdp.utils.SystemConstants;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,6 +23,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/shop")
+@Tag(name = "商铺接口-ShopController",description = "商铺新增、查询、缓存处理相关接口，包含防缓存雪崩、缓存穿透方案")
 public class ShopController {
 
     @Resource

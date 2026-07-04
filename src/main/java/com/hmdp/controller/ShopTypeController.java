@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.hmdp.dto.Result;
 import com.hmdp.entity.ShopType;
 import com.hmdp.service.IShopTypeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/shop-type")
+@Tag(name="店铺类型接口-ShopTypeController")
 public class ShopTypeController {
     @Resource
     private IShopTypeService typeService;

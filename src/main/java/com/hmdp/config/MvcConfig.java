@@ -29,7 +29,12 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/shop/**",
                         "/shop-type/**",
                         "/upload/**",
-                        "/voucher/**"
+                        "/voucher/**",
+                        "/doc.html",
+                        "/v3/api-docs/**",
+                        "/swagger-resources/**",
+                        "/webjars/**",
+                        "/favicon.ico"
                 )
                 .order(1); // 后执行
 
@@ -37,6 +42,13 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate))
                 .addPathPatterns(
                         "/**"
+                )
+                .excludePathPatterns(
+                        "/doc.html",
+                        "/v3/api-docs/**",
+                        "/swagger-resources/**",
+                        "/webjars/**",
+                        "/favicon.ico"
                 )
                 .order(0); // 先执行
     }

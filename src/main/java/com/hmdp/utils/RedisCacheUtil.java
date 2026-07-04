@@ -1,9 +1,12 @@
 package com.hmdp.utils;
 
 import cn.hutool.core.util.RandomUtil;
-
 import java.util.Random;
 
+/**
+ *
+ * 生成随机TTL工具类
+ */
 public class RedisCacheUtil {
 
     private static final Random RANDOM = new Random();
