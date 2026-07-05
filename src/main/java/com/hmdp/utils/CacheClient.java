@@ -3,6 +3,7 @@ package com.hmdp.utils;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.hmdp.entity.Shop;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -83,7 +84,9 @@ public class CacheClient {
         // 6、判断数据库中是否存在该数据
         if(dbData ==null){
             // 数据库中不存在该店铺信息，存空值
-            stringRedisTemplate.opsForValue().set(key,"",RedisConstants.CACHE_NULL_TTL,TimeUnit.MINUTES);
+            long ttl = RedisConstants.CACHE_NULL_TTL + RedisConstants.CACHE_NULL_RANDOM_OFFSET;
+            //stringRedisTemplate.opsForValue().set(key,"",ttl,TimeUnit.MINUTES);
+            this.set(key,"",ttl,TimeUnit.MINUTES);
             return null;
         }
 
@@ -188,7 +191,82 @@ public class CacheClient {
         stringRedisTemplate.delete(key);
     }
 
-    // TODO 封装互斥锁解决缓存击穿工具类
+    /**
+     * 互斥锁解决缓存击穿
+     * @param lockPreFix
+     * @param keyPreFix
+     * @param id
+     * @param type
+     * @param dbFallBack
+     * @return
+     * @param <R>
+     * @param <ID>
+     */
+    public <R,ID> R queryWithMutex(
+            String lockPreFix,
+            String keyPreFix,
+            ID id,
+            Class<R> type,
+            Function<ID,R> dbFallBack
+    ){
+        // 1、建立key
+        String key=keyPreFix+id;
+
+        // 2、查询redis
+        String cacheJson = stringRedisTemplate.opsForValue().get(key);
+
+        // 3、判断redis是否存在
+        if(StrUtil.isNotEmpty(cacheJson)){
+            // 4、存在，返回
+            return JSONUtil.toBean(cacheJson, type);
+        }
+
+        // 4、判断redis的店铺信息cacheShop是否为空值
+        if (cacheJson !=null){
+            // 空值，返回
+            return null;
+        }
+
+        // 5、实现缓存重建
+        // 5.1、获取互斥锁
+        String lockKey=lockPreFix+id;
+        R r = null;
+        try {
+            Boolean isLock = tryLock(lockKey);
+
+            // 5.2、判断是否获取成功
+            if (!isLock){
+                // 5.3、失败，则休眠并重试
+                Thread.sleep(50);
+                return queryWithMutex(lockPreFix,keyPreFix,id,type,dbFallBack);
+            }
+
+            // 5.4、成功，查询数据库
+            r = dbFallBack.apply(id);
+            // 6、判断数据库中是否存在该数据
+            if(r==null){
+                // 数据库中不存在该店铺信息，存空值
+                // 解决雪崩--调用RedisCacheUtil工具类生成随机过期时间
+                long cacheNullTtl = RedisCacheUtil.getRandomTtl(RedisConstants.CACHE_NULL_TTL, RedisConstants.CACHE_NULL_RANDOM_OFFSET);
+                stringRedisTemplate.opsForValue().set(key,"",cacheNullTtl,TimeUnit.MINUTES);
+                return null;
+            }
+
+            // 7、存在，写入redis
+            long cacheShopTtl = RedisCacheUtil.getRandomTtl(RedisConstants.CACHE_SHOP_TTL);
+            stringRedisTemplate.opsForValue().set(key,JSONUtil.toJsonStr(r),cacheShopTtl,TimeUnit.MINUTES);
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            // 8、释放互斥锁
+            unLock(lockKey);
+        }
+
+        // 9、返回
+        return r;
+    }
+
     // TODO 整合解决雪崩方案进解决缓存穿透、击穿方法
     // TODO 整合一个同时解决穿透、击穿的方法
 }
