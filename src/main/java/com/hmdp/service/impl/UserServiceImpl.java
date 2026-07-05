@@ -170,4 +170,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         UserHolder.removeUser();
         return Result.ok();
     }
+
+    /**
+     * 获取当前用户信息
+     * @return
+     */
+    @Override
+    public Result getUser() {
+        // 获取当前登录的用户并返回;
+        return Result.ok(UserHolder.getUser());
+    }
 }

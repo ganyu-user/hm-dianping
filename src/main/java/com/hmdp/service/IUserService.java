@@ -39,4 +39,10 @@ public interface IUserService extends IService<User> {
      * @return
      */
     Result logout();
+
+    /**
+     * 获取当前用户信息
+     * @return
+     */
+    Result getUser();
 }

@@ -64,11 +64,13 @@ public class UserController {
         return userService.logout();
     }
 
+    /**
+     * 获取当前用户信息
+     * @return
+     */
     @GetMapping("/me")
     public Result me(){
-        // 获取当前登录的用户并返回
-        UserDTO userDTO = UserHolder.getUser();
-        return Result.ok(userDTO);
+        return userService.getUser();
     }
 
     @GetMapping("/info/{id}")
